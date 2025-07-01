@@ -31,7 +31,7 @@ export async function register(request: FastifyRequest, reply: FastifyReply){
             return reply.status(409).send({ message: err.message })
         }
 
-        return reply.status(500).send() // TODO: fix me
+        throw err // se o erro n for conhecido, n será tratado por mim, mas pelo fastify
     }
 
     return reply.status(201).send()
