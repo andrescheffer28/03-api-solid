@@ -2,6 +2,7 @@ import { hash } from "bcryptjs"
 import { prisma } from "src/lib/prisma"
 import { UsersRepository } from "src/repositories/users-repository"
 import { UserAlreadyExistsError } from "./errors/user-already-exists-error"
+import { User } from "@prisma/client"
 
 // para criar um usuário é necessário
 interface registerUserCaseRequest {
@@ -16,6 +17,9 @@ interface registerUserCaseRequest {
 // ao inves do caso de uso instanciar a dependencia
 // a dependencias serão recebidas como parâmetros
 
+interface RegisterUserCaseResponse{
+    user: User
+}
 
 export class RegisterUserCase{ 
     // cada caso de uso terá um único método
@@ -25,9 +29,7 @@ export class RegisterUserCase{
 
     }
 
-    async execute({
-        name, email, password,
-    }: registerUserCaseRequest) {
+    async execute({ name, email, password, }: registerUserCaseRequest): Promise<RegisterUserCaseResponse> {
         const password_hash = await hash(password, 6)
 
         const userWithSameEmail = await prisma.user.findUnique({
@@ -40,10 +42,17 @@ export class RegisterUserCase{
             throw new UserAlreadyExistsError()
         }
 
-        await this.userRepository.create({
+        const user = await this.userRepository.create({
             name,
             email,
             password_hash,
         })
+
+        //sempre retornar em forma de objeto, mesmo q seja um item
+        // para q caso a função venha retornar outras coisas, é só adicionar
+        // sem mudar a estrutura de retorno
+        return {
+            user,
+        }
     }
 }

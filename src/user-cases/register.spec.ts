@@ -1,5 +1,41 @@
-import { expect, test } from 'vitest'
+import { expect, describe, it } from 'vitest'
+import { RegisterUserCase } from './register'
+import { compare } from 'bcryptjs'
 
-test('cehck if it works', () => {
-    expect(2 + 2).toBe(4)
+describe('Register Use Case', () => {
+    it('should hash user password upon registration', async () =>{
+      
+        const registerUseCase = new RegisterUserCase({ // ao invés de enviar o prisma, envia um objeto q imita o repositório
+            //foi passado varias dependências vazias,
+            //foi passado varios métodos vazios 
+            async findByEmail(email){
+                return null
+            },
+            
+            async create(data){
+                return {
+                    id: 'user-1',
+                    name: data.name,
+                    email: data.email,
+                    password_hash: data.password_hash,
+                    created_at: new Date(),
+                }
+            },
+        })
+
+        const { user } = await registerUseCase.execute({
+            name: 'John Doe',
+            email: 'johndoe1@exemple.com',
+            password: '123456',
+        })
+
+        // o método compare() vem dentro do bcryptjs
+        //compara '123456' com o hash gerado em user.password_hash
+        const isPasswordCorrectlyHashed = await compare(
+            '123456',
+            user.password_hash,
+        )
+
+        expect(isPasswordCorrectlyHashed).toBe(true)
+    })
 })

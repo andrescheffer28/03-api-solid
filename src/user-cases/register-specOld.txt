@@ -1,0 +1,30 @@
+import { expect, describe, it } from 'vitest'
+import { RegisterUserCase } from './register'
+import { PrismaUsersRepository } from 'src/repositories/prisma/prisma-users-repository'
+import { compare } from 'bcryptjs'
+
+describe('Register Use Case', () => {
+    it('should hash user password upon registration', async () =>{
+        // apartir q o caso teste recebe o prisma, deixa de ser um caso teste unitário
+        // pode ser considerado um teste de integração
+        // teste unitário n toca em banco de dados e camadas externas
+        // por isso, na escrita de testes deve ser utilizado a inversão de dependências
+        const prismaUsersRepository = new PrismaUsersRepository()
+        const registerUseCase = new RegisterUserCase(prismaUsersRepository)
+
+        const { user } = await registerUseCase.execute({
+            name: 'John Doe',
+            email: 'johndoe@exemple.com',
+            password: '123456',
+        })
+
+        // o método compare() vem dentro do bcryptjs
+        //compara '123456' com o hash gerado em user.password_hash
+        const isPasswordCorrectlyHashed = await compare(
+            '123456',
+            user.password_hash,
+        )
+
+        expect(isPasswordCorrectlyHashed).toBe(true)
+    })
+})
