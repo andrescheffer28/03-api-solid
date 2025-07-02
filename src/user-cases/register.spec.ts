@@ -54,7 +54,7 @@ describe('Register Use Case', () => {
 
 // a promisse só tem duas alternativas. Ou Resolve / Reject
 
-        expect(() =>
+        await expect(() =>
             registerUseCase.execute({
                 name: 'John Doe',
                 email,
