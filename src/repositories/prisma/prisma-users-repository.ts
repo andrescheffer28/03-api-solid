@@ -5,6 +5,15 @@ import { UsersRepository } from "../users-repository"
 //nos repositórios de usuário para q sigam essa interface
 //pode ser usado implements UsersRepository
 export class PrismaUsersRepository implements UsersRepository{
+    async findByEmail(email: string) {
+        const user = await prisma.user.findUnique({
+            where: {
+                email,  
+            },
+        })
+
+        return user
+    }
     // contera varios métodos q irão interceptar as portas de entrada
     // para qualquer operação do banco de dados
 
