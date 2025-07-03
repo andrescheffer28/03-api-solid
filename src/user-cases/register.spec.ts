@@ -1,17 +1,23 @@
-import { expect, describe, it } from 'vitest'
+import { expect, describe, it, beforeEach } from 'vitest'
 import { RegisterUserCase } from './register'
 import { compare } from 'bcryptjs'
 import { InMemoryUsersRepository } from 'src/repositories/in-memory/in-memory-users-repository'
 import { UserAlreadyExistsError } from './errors/user-already-exists-error'
 
+//o que está no before each n é globalmente visível para os testes,
+//logo é declarado as variáveis sem inicialização, deixando essa tarefa no beforeEach
+let usersRepository: InMemoryUsersRepository
+let sut: RegisterUserCase
+
 describe('Register Use Case', () => {
+    beforeEach(() => {
+        usersRepository = new InMemoryUsersRepository()
+        sut = new RegisterUserCase(usersRepository)
+    })
 
     it('should be able to register', async () =>{
-      
-        const UsersRepository = new InMemoryUsersRepository()
-        const registerUseCase = new RegisterUserCase(UsersRepository)
 
-        const { user } = await registerUseCase.execute({
+        const { user } = await sut.execute({
             name: 'John Doe',
             email: 'johndoe1@exemple.com',
             password: '123456',
@@ -21,11 +27,8 @@ describe('Register Use Case', () => {
     })
 
     it('should hash user password upon registration', async () =>{
-      
-        const UsersRepository = new InMemoryUsersRepository()
-        const registerUseCase = new RegisterUserCase(UsersRepository)
 
-        const { user } = await registerUseCase.execute({
+        const { user } = await sut.execute({
             name: 'John Doe',
             email: 'johndoe1@exemple.com',
             password: '123456',
@@ -40,13 +43,10 @@ describe('Register Use Case', () => {
     })
 
     it('should not be able to register with same email', async () =>{
-      
-        const UsersRepository = new InMemoryUsersRepository()
-        const registerUseCase = new RegisterUserCase(UsersRepository)
 
         const email = 'johndoe1@exemple.com'
 
-        await registerUseCase.execute({
+        await sut.execute({
             name: 'John Doe',
             email,
             password: '123456',
@@ -55,7 +55,7 @@ describe('Register Use Case', () => {
 // a promisse só tem duas alternativas. Ou Resolve / Reject
 
         await expect(() =>
-            registerUseCase.execute({
+            sut.execute({
                 name: 'John Doe',
                 email,
                 password: '123456',
