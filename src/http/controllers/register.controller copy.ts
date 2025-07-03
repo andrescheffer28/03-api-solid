@@ -1,7 +1,8 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { z } from "zod"
+import { RegisterUserCase } from 'src/user-cases/register'
+import { PrismaUsersRepository } from 'src/repositories/prisma/prisma-users-repository'
 import { UserAlreadyExistsError } from 'src/user-cases/errors/user-already-exists-error'
-import { makeRegisterUserCase } from 'src/user-cases/factories/make-register-use-case'
 
 export async function register(request: FastifyRequest, reply: FastifyReply){
     const registerBodySchema = z.object({
@@ -13,9 +14,13 @@ export async function register(request: FastifyRequest, reply: FastifyReply){
     const { name, email, password } = registerBodySchema.parse(request.body)
 
     try{
-        const registerUserCase = makeRegisterUserCase()
+        const usersRepository = new PrismaUsersRepository()
 
-        await registerUserCase.execute({
+        //princípio da inversão de independência
+        // é preciso instanciar a classe e passar como parâmetro quais são as dependências
+        const registerUserCase = new RegisterUserCase(usersRepository)
+
+        await registerUserCase.execute({ //utiliza o método execute criado em register.ts
             name,
             email,
             password,
@@ -26,7 +31,7 @@ export async function register(request: FastifyRequest, reply: FastifyReply){
             return reply.status(409).send({ message: err.message })
         }
 
-        throw err
+        throw err // se o erro n for conhecido, n será tratado por mim, mas pelo fastify
     }
 
     return reply.status(201).send()
