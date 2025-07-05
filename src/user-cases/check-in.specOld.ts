@@ -1,72 +1,54 @@
 import { expect, describe, it, beforeEach, vi, afterEach } from 'vitest'
 import { InMemoryCheckInsRepository } from 'src/repositories/in-memory/in-memory-check-ins-repository'
 import { CheckInUserCase } from './check-in'
-import { InMemoryGymsRepository } from 'src/repositories/in-memory/in-memory-gyms-repository'
-import { Decimal } from '@prisma/client/runtime/library'
 
 let checkInsRepository: InMemoryCheckInsRepository
-let gymRepository: InMemoryGymsRepository
 let sut: CheckInUserCase
 
 describe('Check-in Use Case', () => {
     beforeEach(() => {
         checkInsRepository = new InMemoryCheckInsRepository()
-        gymRepository = new InMemoryGymsRepository()
-        sut = new CheckInUserCase(checkInsRepository,gymRepository)
+        sut = new CheckInUserCase(checkInsRepository)
 
-        // garante q todos os testes q vão executar, já tenham uma academia criada
-        gymRepository.items.push({
-            id: 'gym-01',
-            title: 'JavaScript Gym',
-            description: '',
-            phone: '',
-            latitude: new Decimal(0),
-            longitude: new Decimal(0),
-        })
-
+        //creação do mocking
         vi.useFakeTimers()
     })
 
+    //boa prática é depois de criar um mocking restar pro estado original
     afterEach(() =>{
         vi.useRealTimers()
     })
 
     it('should be able to Check in', async () =>{
+        vi.setSystemTime(new Date(2022, 0, 20, 8, 0, 0))
 
         const { checkIn } = await sut.execute({
-
+            //em nenhum momento do user-case por enquanto é feito a verificação
+            // se o usuário e academia existem, logo gymId e userId podem ser iguais a qualquer string
             gymId: 'gym-01',
             userId: 'user-01',
-
-            //nesse teste n é relevante
-            userLatitude: 0,
-            userLongitude: 0,
         })
 
         expect(checkIn.id).toEqual(expect.any(String))
     })
 
+    //teste criado usando o tdd (desenvolvimento orientado a testes)
+    // 1° etapa é red (erro no teste)
+    // 2° etapa é green, codando o mínimo possível
+    // 3° etapa de refatoração
     it('should not be able to check in twice in the same day', async () =>{
         vi.setSystemTime(new Date(2022, 0, 20, 8, 0, 0))
         
         //realiza o primeiro check in
         await sut.execute({
             gymId: 'gym-01',
-            userId: 'user-01',
-
-            //nesse teste n é relevante
-            userLatitude: 0,
-            userLongitude: 0,
+            userId: 'user-01'
         })
 
         //realiza um novo check in
         await expect(() => sut.execute({
             gymId: 'gym-01',
-            userId: 'user-01',
-
-            //nesse teste n é relevante
-            userLatitude: 0,
-            userLongitude: 0,
+            userId: 'user-01'
         })).rejects.toBeInstanceOf(Error)
     })
 
@@ -76,11 +58,7 @@ describe('Check-in Use Case', () => {
         //realiza o primeiro check in
         await sut.execute({
             gymId: 'gym-01',
-            userId: 'user-01',
-
-            //nesse teste n é relevante
-            userLatitude: 0,
-            userLongitude: 0,
+            userId: 'user-01'
         })
 
         vi.setSystemTime(new Date(2022, 0, 21, 8, 0, 0))
@@ -88,11 +66,7 @@ describe('Check-in Use Case', () => {
         //realiza um novo check in
         const { checkIn } = await sut.execute({
             gymId: 'gym-01',
-            userId: 'user-01',
-
-            //nesse teste n é relevante
-            userLatitude: 0,
-            userLongitude: 0,
+            userId: 'user-01'
         })
 
         expect(checkIn.id).toEqual(expect.any(String))
