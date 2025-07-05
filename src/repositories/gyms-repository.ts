@@ -1,7 +1,8 @@
-import { Gym } from "@prisma/client";
+import { Gym, Prisma } from "@prisma/client";
 
 // é preciso buscar a academia no banco de dados, para obter informações como latitudo, longitude...
 // para a validação
 export interface GymsRepository{
-    findById(id: string): Promise<User | null>
+    findById(id: string): Promise<Gym | null>
+    create(data: Prisma.GymCreateInput): Promise<Gym>
 }
