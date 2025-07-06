@@ -1,0 +1,30 @@
+basic auth -> faz com que em todas as requisições 
+o usuário precise enviar suas credenciais no cabeçalho da requisição
+cabeçalho são metadados
+(não é utilizado, pois n é seguro transitar email e senha toda vez q é feita uma requisição)
+
+JWT - Jason web Token
+Somente na rota de login, o usuario envia o email e senha pro backend
+o backend verfica se existe. 
+Se for validado, o backend gera um token único e não modificável um "stateless token"
+Stateless: Não armazenado em nenhuma estrutura de persistência de dados (banco de dados)
+
+Back-end: quando vai criar o token ele usa uma PALAVRA-CHAVE (string)
+Palavra-chave ex: hgoaehgaeorhgauergharg8gya98r7897dshh
+usa essa palavra chave para criar o token
+
+                token jwt é composto por 3 coisas separadas por pontos
+E-mail/senha -> header.payload.sign
+
+header - qual algorítmo usado pra criar o token
+
+payload - qualquer inf
+utliza a terminologia "sub": "123456789" para indicar o id do usuário
+
+sign - valida o token, combina os valores do header payload e palavra chave
+
+estratégia usada 
+Login => JWT
+
+JWT => vai ser utilizado em todas as requisições
+enviado através do header (cabeçalho): Authorization: Bearer JWT
