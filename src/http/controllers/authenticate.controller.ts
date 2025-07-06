@@ -14,9 +14,24 @@ export async function authenticate(request: FastifyRequest, reply: FastifyReply)
     try{
         const authenticateUserCase = makeAuthenticateUserCase()
 
-        await authenticateUserCase.execute({
+        const { user } = await authenticateUserCase.execute({
             email,
             password,
+        })
+
+        //apartir do momento q o fastifyJwt foi importado na aplicação,
+        //alguns novos métodos surgiram dentro de request e reply
+        const token = await reply.jwtSign(
+            {},
+            {
+                sign: {
+                    sub: user.id,
+                }
+            }
+        )
+
+        return reply.status(200).send({
+            token,
         })
 
     }catch(err){
@@ -26,6 +41,4 @@ export async function authenticate(request: FastifyRequest, reply: FastifyReply)
 
         throw err // se o erro n for conhecido, n será tratado por mim, mas pelo fastify
     }
-
-    return reply.status(200).send()
 }

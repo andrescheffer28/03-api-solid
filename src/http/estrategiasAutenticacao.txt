@@ -13,6 +13,7 @@ Back-end: quando vai criar o token ele usa uma PALAVRA-CHAVE (string)
 Palavra-chave ex: hgoaehgaeorhgauergharg8gya98r7897dshh
 usa essa palavra chave para criar o token
 
+
                 token jwt é composto por 3 coisas separadas por pontos
 E-mail/senha -> header.payload.sign
 
@@ -28,3 +29,6 @@ Login => JWT
 
 JWT => vai ser utilizado em todas as requisições
 enviado através do header (cabeçalho): Authorization: Bearer JWT
+
+não coloque email e senha do usuário dentro do JWT!!!
+o payload n é encriptografado apenas encode
