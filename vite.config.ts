@@ -5,12 +5,12 @@ export default defineConfig({
     plugins: [tsconfigPaths()],
     test:{
         dir: 'src',
-        workspace: [
+        projects: [
             {
                 extends: true,
                 test: {
                     name: 'unit',
-                    dir: 'src/use-cases',
+                    dir: 'src/user-cases',
                 }
             },
             {
