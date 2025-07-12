@@ -1,7 +1,6 @@
 import request from 'supertest'
 import { app } from 'src/app'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { createAndAuthenticateUser } from 'src/utils/create-and-authenticate-use'
 
 describe('Profile (e2e)', () => {
 
@@ -14,7 +13,24 @@ describe('Profile (e2e)', () => {
 
 
     it('should be able to get user profile', async () => {
-        const { token } = await createAndAuthenticateUser(app)
+
+        // na maioria dos testes e2e é exigido q o usuário esteja logado, logo é possivel separar isso em uma função
+        await request(app.server)
+            .post('/users')
+            .send({
+                name: 'John Doe',
+                email: 'johndoe@exemple.com',
+                password: '123456'
+            })
+
+        const authResponse = await request(app.server)
+            .post('/sessions')
+            .send({
+                email: 'johndoe@exemple.com',
+                password: '123456'
+            })
+
+        const { token } = authResponse.body
 
         const profileResponse = await request(app.server)
             .get('/me')
